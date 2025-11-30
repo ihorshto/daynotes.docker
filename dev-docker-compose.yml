@@ -1,0 +1,39 @@
+name: daynotes
+
+services:
+  daynotes.sgbd:
+    build:
+      context: ./daynotes.sgbd/
+      dockerfile: Dockerfile
+    container_name: daynotes.sgbd
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - './daynotes.sgbd/db:/var/lib/mysql'
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -P ${DB_PORT} -p${DB_ROOT_PASSWORD} | grep 'mysqld is alive' || exit 1" ]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+
+  daynotes.listener:
+    container_name: daynotes.listener
+    build:
+      context: ./daynotes.listener/
+      dockerfile: Dockerfile
+      args:
+        uid: ${UID:-1000}
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - ./daynotes.api/laravel:/var/www/html
+    depends_on:
+      daynotes.sgbd:
+        condition: service_healthy
+    restart: unless-stopped
