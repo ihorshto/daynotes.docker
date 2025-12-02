@@ -32,7 +32,7 @@ services:
     environment:
       - TZ=Europe/Paris
     volumes:
-      - ./daynotes.api/laravel:/var/www/html
+      - ./daynotes.api/web:/var/www/html
     depends_on:
       daynotes.sgbd:
         condition: service_healthy

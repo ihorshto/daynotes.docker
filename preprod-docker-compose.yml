@@ -39,7 +39,7 @@ services:
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - TZ=Europe/Paris
     volumes:
-      - ./daynotes.api/laravel:/var/www/html
+      - ./daynotes.api/web:/var/www/html
       - laravel_storage:/var/www/html/storage/app/public
       - ./daynotes.api/000-default.conf:/etc/apache2/sites-available/000-default.conf
       - ./daynotes.api/ports.conf:/etc/apache2/ports.conf
@@ -68,7 +68,7 @@ services:
     environment:
       - TZ=Europe/Paris
     volumes:
-      - ./daynotes.api/laravel:/var/www/html
+      - ./daynotes.api/web:/var/www/html
     depends_on:
       sgbd:
         condition: service_healthy
