@@ -22,6 +22,45 @@ services:
       timeout: 30s
       retries: 10
 
+  daynotes.test-db:
+    image: mysql:8.0
+    container_name: daynotes.test-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: test_root_password
+      MYSQL_DATABASE: test_daynotes
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_password
+    volumes:
+      - './daynotes.test-db/db:/var/lib/mysql'
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -p'test_root_password' | grep 'mysqld is alive' || exit 1"]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+
+  app:
+    container_name: daynotes.app
+    build:
+      context: ./daynotes.api/
+      dockerfile: Dockerfile
+      args:
+        uid: ${UID:-1000}
+    environment:
+      - DOMAIN=${DOMAIN}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - TZ=Europe/Paris
+    volumes:
+      - ./daynotes.api/web:/var/www/html
+    ports:
+      - "8000:80"
+    depends_on:
+      daynotes.sgbd:
+        condition: service_healthy
+    restart: unless-stopped
+
   daynotes.listener:
     container_name: daynotes.listener
     build:
