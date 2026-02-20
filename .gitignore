@@ -1,5 +1,6 @@
 /.env
 /daynotes.api/laravel/.env
 /daynotes.sgbd/db
+/daynotes.test-db/
 daynotes.api/web
 .idea/*
