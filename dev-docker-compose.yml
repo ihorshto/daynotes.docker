@@ -52,6 +52,12 @@ services:
       - DOMAIN=${DOMAIN}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - TZ=Europe/Paris
+      # Xdebug Configuration
+      - XDEBUG_MODE=${XDEBUG_MODE:-off}
+      - XDEBUG_CLIENT_HOST=${XDEBUG_CLIENT_HOST:-host.docker.internal}
+      - XDEBUG_CLIENT_PORT=${XDEBUG_CLIENT_PORT:-9003}
+      - XDEBUG_START_WITH_REQUEST=${XDEBUG_START_WITH_REQUEST:-yes}
+      - XDEBUG_IDEKEY=${XDEBUG_IDEKEY:-PHPSTORM}
     volumes:
       - ./daynotes.api/web:/var/www/html
     ports:
@@ -70,6 +76,12 @@ services:
         uid: ${UID:-1000}
     environment:
       - TZ=Europe/Paris
+      # Xdebug Configuration
+      - XDEBUG_MODE=${XDEBUG_MODE:-off}
+      - XDEBUG_CLIENT_HOST=${XDEBUG_CLIENT_HOST:-host.docker.internal}
+      - XDEBUG_CLIENT_PORT=${XDEBUG_CLIENT_PORT:-9003}
+      - XDEBUG_START_WITH_REQUEST=${XDEBUG_START_WITH_REQUEST:-yes}
+      - XDEBUG_IDEKEY=${XDEBUG_IDEKEY:-PHPSTORM}
     volumes:
       - ./daynotes.api/web:/var/www/html
     depends_on:

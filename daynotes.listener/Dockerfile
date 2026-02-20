@@ -24,6 +24,16 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd bz2 intl iconv bcmath opcache calendar pdo_mysql zip ldap pcntl
 
+# Install Xdebug
+RUN pecl install xdebug-3.3.2 && \
+    docker-php-ext-enable xdebug
+
+# Copy Xdebug configuration
+COPY ./config/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# Create xdebug log file
+RUN touch /var/log/xdebug.log && chmod 666 /var/log/xdebug.log
+
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
