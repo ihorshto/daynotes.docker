@@ -21,6 +21,8 @@ services:
       interval: 5s
       timeout: 30s
       retries: 10
+    networks:
+      - app-network
 
   daynotes.test-db:
     image: mysql:8.0
@@ -66,6 +68,8 @@ services:
       daynotes.sgbd:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - app-network
 
   daynotes.listener:
     container_name: daynotes.listener
@@ -88,3 +92,27 @@ services:
       daynotes.sgbd:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - app-network
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE:mysqldb
+      - DB_MYSQLDB_HOST=daynotes.sgbd
+      - DB_MYSQLDB_PORT=3306
+      - DB_MYSQLDB_DATABASE=${DB_NAME}
+      - DB_MYSQLDB_USER=${DB_USER}
+      - DB_MYSQLDB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - daynotes.sgbd
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
