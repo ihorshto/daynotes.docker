@@ -5,7 +5,7 @@ services:
     build:
       context: ./daynotes.sgbd/
       dockerfile: Dockerfile
-    container_name: daynotes.sgbd
+    container_name: sgbd
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -15,14 +15,14 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - "127.0.0.1:${DB_PORT}:${DB_PORT}"
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}" ]
       interval: 5s
       timeout: 30s
       retries: 10
     networks:
-      - dbNet
+      - app-network
 
   daynotes.api:
     build:
@@ -30,13 +30,12 @@ services:
       dockerfile: Dockerfile
       args:
         uid: ${UID:-1000}
-    container_name: daynotes.api
+    container_name: api
     environment:
       - APACHE_RUN_USER=#${UID:-1000}
       - APACHE_RUN_GROUP=#${UID:-1000}
       - SSL_ENABLED=${SSL_ENABLED}
       - DOMAIN=${DOMAIN}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - TZ=Europe/Paris
     volumes:
       - ./daynotes.api/web:/var/www/html
@@ -48,15 +47,12 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      sgbd:
+      daynotes.sgbd:
         condition: service_healthy
-      certbot:
-        condition: service_completed_successfully
     restart: always
     entrypoint: sh -c "/var/www/html/onLaunch.sh && apache2-foreground"
     networks:
-      - internet
-      - dbNet
+      - app-network
 
   daynotes.listener:
     build:
@@ -64,22 +60,40 @@ services:
       dockerfile: Dockerfile
       args:
         uid: ${UID:-1000}
-    container_name: daynotes.listener
+    container_name: listener
     environment:
       - TZ=Europe/Paris
     volumes:
       - ./daynotes.api/web:/var/www/html
     depends_on:
-      sgbd:
+      daynotes.sgbd:
         condition: service_healthy
     restart: always
     networks:
-      - dbNet
+      - app-network
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - DB_TYPE=mysqldb
+      - DB_MYSQLDB_HOST=daynotes.sgbd
+      - DB_MYSQLDB_PORT=3306
+      - DB_MYSQLDB_DATABASE=${DB_NAME}
+      - DB_MYSQLDB_USER=${DB_USER}
+      - DB_MYSQLDB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      - daynotes.sgbd
+    networks:
+      - app-network
 
 networks:
-  internet:
-    driver: bridge
-  dbNet:
+  app-network:
     driver: bridge
 
 volumes:
@@ -88,4 +102,6 @@ volumes:
   laravel_storage:
     driver: local
   letsencrypt_certs:
+    driver: local
+  n8n_data:
     driver: local
