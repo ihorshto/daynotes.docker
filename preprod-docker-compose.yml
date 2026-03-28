@@ -34,14 +34,13 @@ services:
     environment:
       - APACHE_RUN_USER=#${UID:-1000}
       - APACHE_RUN_GROUP=#${UID:-1000}
-      - SSL_ENABLED=${SSL_ENABLED}
       - DOMAIN=${DOMAIN}
       - TZ=Europe/Paris
     volumes:
       - ./daynotes.api/web:/var/www/html
       - laravel_storage:/var/www/html/storage/app/public
-      - ./daynotes.api/000-default.conf:/etc/apache2/sites-available/000-default.conf
-      - ./daynotes.api/ports.conf:/etc/apache2/ports.conf
+      - ./daynotes.api/config/sites-available/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./daynotes.api/config/ports.conf:/etc/apache2/ports.conf
       - letsencrypt_certs:/etc/letsencrypt:ro
     ports:
       - "80:80"
