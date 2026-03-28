@@ -84,6 +84,7 @@ services:
       - DB_MYSQLDB_DATABASE=${DB_NAME}
       - DB_MYSQLDB_USER=${DB_USER}
       - DB_MYSQLDB_PASSWORD=${DB_PASSWORD}
+      - N8N_SECURE_COOKIE=false
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:
