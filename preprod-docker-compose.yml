@@ -50,7 +50,7 @@ services:
       daynotes.sgbd:
         condition: service_healthy
     restart: always
-    entrypoint: sh -c "/var/www/html/onLaunch.sh && apache2-foreground"
+    entrypoint: sh -c "chmod +x /var/www/html/onLaunch.sh && /var/www/html/onLaunch.sh && apache2-foreground"
     networks:
       - app-network
 
