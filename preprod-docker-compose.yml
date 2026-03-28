@@ -34,7 +34,6 @@ services:
     environment:
       - APACHE_RUN_USER=#${UID:-1000}
       - APACHE_RUN_GROUP=#${UID:-1000}
-      - SSL_ENABLED=${SSL_ENABLED}
       - DOMAIN=${DOMAIN}
       - TZ=Europe/Paris
     volumes:
