@@ -35,7 +35,7 @@ services:
       - APACHE_RUN_USER=#${UID:-1000}
       - APACHE_RUN_GROUP=#${UID:-1000}
       - DOMAIN=${DOMAIN}
-      - TZ=Europe/Paris
+      - TZ=${TZ}
     volumes:
       - ./daynotes.api/web:/var/www/html
       - laravel_storage:/var/www/html/storage/app/public
@@ -59,7 +59,23 @@ services:
         uid: ${UID:-1000}
     container_name: listener
     environment:
-      - TZ=Europe/Paris
+      - TZ=${TZ}
+    volumes:
+      - ./daynotes.api/web:/var/www/html
+    depends_on:
+      daynotes.sgbd:
+        condition: service_healthy
+    restart: always
+    networks:
+      - app-network
+
+  daynotes.cron:
+    build:
+      context: ./daynotes.cron/
+      dockerfile: Dockerfile
+    container_name: cron
+    environment:
+      - TZ=${TZ}
     volumes:
       - ./daynotes.api/web:/var/www/html
     depends_on:
