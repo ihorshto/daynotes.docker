@@ -134,7 +134,7 @@ services:
       - ./daynotes.webhook-init/set-webhook.sh:/set-webhook.sh
     depends_on:
       - daynotes.ngrok
-    restart: "no"
+    restart: unless-stopped
     networks:
       - app-network
     entrypoint: ["/bin/sh", "/set-webhook.sh"]

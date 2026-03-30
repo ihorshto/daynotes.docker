@@ -18,3 +18,5 @@ RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/se
   -d "{\"url\": \"$NGROK_URL/api/telegram/webhook\", \"drop_pending_updates\": true}")
 
 echo "$RESPONSE"
+
+sleep infinity
