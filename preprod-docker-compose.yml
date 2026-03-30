@@ -85,6 +85,34 @@ services:
     networks:
       - app-network
 
+  daynotes.ngrok:
+    image: ngrok/ngrok:latest
+    container_name: daynotes.ngrok
+    command: http daynotes.api:80 --log=stdout
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    depends_on:
+      - daynotes.api
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  daynotes.webhook-init:
+    image: alpine/curl
+    container_name: daynotes.webhook-init
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - ./daynotes.webhook-init/set-webhook.sh:/set-webhook.sh
+    depends_on:
+      - daynotes.ngrok
+    restart: "no"
+    networks:
+      - app-network
+    entrypoint: ["/bin/sh", "/set-webhook.sh"]
+
   n8n:
     image: n8nio/n8n
     container_name: n8n
