@@ -24,7 +24,6 @@ WORKDIR /var/www/html
 
 # Crontab setup
 COPY crontab /etc/cron.d/laravel-scheduler
-RUN chmod 0644 /etc/cron.d/laravel-scheduler && \
-    crontab /etc/cron.d/laravel-scheduler
+RUN chmod 0644 /etc/cron.d/laravel-scheduler
 
 CMD ["cron", "-f"]
